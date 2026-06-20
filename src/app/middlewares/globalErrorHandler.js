@@ -1,5 +1,6 @@
 import { ZodError } from 'zod';
 import ApiError from '../../errors/ApiError.js';
+import logger from '../../shared/logger.js';
 
 const handlePrismaError = (error) => {
   const { code } = error;
@@ -33,7 +34,7 @@ const handlePrismaError = (error) => {
   }
 };
 
-const globalErrorHandler = (err, req, res, next) => {
+const globalErrorHandler = (err, req, res, _next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong!';
   let errorMessages = [];
@@ -86,6 +87,18 @@ const globalErrorHandler = (err, req, res, next) => {
         message: err.message,
       },
     ];
+  }
+
+  logger.error('Unhandled API error', {
+    statusCode,
+    message,
+    method: req.method,
+    path: req.originalUrl,
+  });
+
+  if (process.env.NODE_ENV === 'production' && statusCode === 500) {
+    message = 'Internal server error';
+    errorMessages = [];
   }
 
   return res.status(statusCode).json({

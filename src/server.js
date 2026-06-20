@@ -7,17 +7,22 @@ const PORT = config.port || 3002;
 
 // Start server
 const startServer = async () => {
-  await connectDatabase();
-  const server = app.listen(PORT, () => {
-    logger.info(`🚀 Server running on port ${PORT} `);
-    logger.info(`📚 API: http://localhost:${PORT}/api/v1/health`);
-  });
+  try {
+    await connectDatabase();
+    const server = app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+      logger.info(`Health endpoint: http://localhost:${PORT}/api/v1/health`);
+    });
 
-  // Graceful shutdown handling
-  process.on('SIGTERM', () => gracefulShutdown(server, 'SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown(server, 'SIGINT'));
+    // Graceful shutdown handling
+    process.on('SIGTERM', () => gracefulShutdown(server, 'SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown(server, 'SIGINT'));
 
-  return server;
+    return server;
+  } catch (error) {
+    logger.error('Failed to start server', { error: error.message });
+    process.exit(1);
+  }
 };
 
 function gracefulShutdown(server, signal) {

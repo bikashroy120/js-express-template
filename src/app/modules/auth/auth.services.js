@@ -43,7 +43,8 @@ const register = async (data) => {
     return createdUser;
   });
 
-  const { password, ...userWithoutPassword } = newUser;
+  const userWithoutPassword = { ...newUser };
+  delete userWithoutPassword.password;
 
   const payload = {
     id: newUser.id,
@@ -93,7 +94,8 @@ const login = async (data) => {
     '30d',
   );
 
-  const { password, ...otherData } = user;
+  const otherData = { ...user };
+  delete otherData.password;
 
   return {
     user: otherData,
@@ -229,7 +231,7 @@ const verifyOtp = async (email, otp, type) => {
     where: {
       userId: user.id,
       token: otp,
-      type: 'RESET_PASSWORD',
+      type,
       expiresAt: {
         gt: new Date(),
       },
@@ -249,7 +251,7 @@ const verifyOtp = async (email, otp, type) => {
     await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: user.id },
-        data: { isVerified: true },
+        data: { emailVerify: true },
       });
       await tx.verificationToken.delete({ where: { id: tokenRecord.id } });
     });
@@ -271,7 +273,8 @@ const verifyOtp = async (email, otp, type) => {
       '30d',
     );
 
-    const { password, ...otherData } = user;
+    const otherData = { ...user };
+    delete otherData.password;
 
     return {
       user: otherData,
@@ -343,6 +346,12 @@ const resetPassword = async (data) => {
     },
     data: {
       password: hash,
+    },
+  });
+
+  await prisma.verificationToken.delete({
+    where: {
+      id: tokenRecord.id,
     },
   });
 

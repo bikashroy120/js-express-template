@@ -10,7 +10,7 @@ export const registerSchema = z.object({
         required_error: 'Password is required',
         invalid_type_error: 'Password must be a string',
       })
-      .min(4, 'Password must be at least 4 characters long'),
+      .min(8, 'Password must be at least 8 characters long'),
     role: z.enum(UserRole).default(UserRole.USER),
   }),
 });
@@ -23,7 +23,7 @@ export const loginSchema = z.object({
         required_error: 'Password is required',
         invalid_type_error: 'Password must be a string',
       })
-      .min(4, 'Password must be at least 4 characters long'),
+      .min(8, 'Password must be at least 8 characters long'),
   }),
 });
 
@@ -75,21 +75,22 @@ export const resetPasswordSchema = z
           required_error: 'Password is required',
           invalid_type_error: 'Password must be a string',
         })
-        .min(4, 'Password must be at least 4 characters long'),
+        .min(8, 'Password must be at least 8 characters long'),
       confirmPassword: z
         .string({
           required_error: 'Confirm Password is required',
           invalid_type_error: 'Confirm Password must be a string',
         })
-        .min(4, 'Confirm Password must be at least 4 characters long'),
+        .min(8, 'Confirm Password must be at least 8 characters long'),
       temporaryResetToken: z.string({
         required_error: 'Temporary reset token is required',
         invalid_type_error: 'Temporary reset token must be a string',
       }),
     }),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.body.password === data.body.confirmPassword, {
     message: 'Passwords do not match',
+    path: ['body', 'confirmPassword'],
   });
 
 export const changePasswordSchema = z
@@ -100,21 +101,22 @@ export const changePasswordSchema = z
           required_error: 'Current password is required',
           invalid_type_error: 'Current password must be a string',
         })
-        .min(4, 'Current password must be at least 4 characters long'),
+        .min(8, 'Current password must be at least 8 characters long'),
       newPassword: z
         .string({
           required_error: 'New password is required',
           invalid_type_error: 'New password must be a string',
         })
-        .min(4, 'New password must be at least 4 characters long'),
+        .min(8, 'New password must be at least 8 characters long'),
       confirmNewPassword: z
         .string({
           required_error: 'Confirm new password is required',
           invalid_type_error: 'Confirm new password must be a string',
         })
-        .min(4, 'Confirm new password must be at least 4 characters long'),
+        .min(8, 'Confirm new password must be at least 8 characters long'),
     }),
   })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
+  .refine((data) => data.body.newPassword === data.body.confirmNewPassword, {
     message: 'New passwords do not match',
+    path: ['body', 'confirmNewPassword'],
   });

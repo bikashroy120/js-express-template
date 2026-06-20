@@ -1,6 +1,7 @@
 import catchAsync from '../../../shared/catchAsync.js';
 import sendResponse from '../../../shared/sendResponse.js';
 import { authService } from './auth.services.js';
+import ApiError from '../../../errors/ApiError.js';
 
 const register = catchAsync(async (req, res) => {
   const result = await authService.register(req.body);
@@ -104,12 +105,19 @@ const getProfile = catchAsync(async (req, res) => {
 const changePassword = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const { currentPassword, newPassword, confirmNewPassword } = req.body;
-  const result = await authService.changePassword({
+
+  if (newPassword !== confirmNewPassword) {
+    throw new ApiError(
+      400,
+      'New password and confirm new password do not match',
+    );
+  }
+
+  const result = await authService.changePassword(
     userId,
     currentPassword,
     newPassword,
-    confirmNewPassword,
-  });
+  );
 
   sendResponse(res, {
     statusCode: 200,

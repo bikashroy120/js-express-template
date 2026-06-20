@@ -12,7 +12,7 @@ export const verifyToken = (token, secret) => {
     const decoded = jwt.verify(token, secret);
     return decoded;
   } catch (error) {
-    logger.error('Token verification failed:', error);
-    throw new ApiError('Invalid token');
+    logger.warn('Token verification failed', { name: error.name });
+    throw new ApiError(401, 'Invalid token');
   }
 };

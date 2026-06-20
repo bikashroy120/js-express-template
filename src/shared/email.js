@@ -1,18 +1,35 @@
 import nodemailer from 'nodemailer';
 import logger from './logger.js';
+import config from '../config/index.js';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'mdrakibulhasan12346@gmail.com',
-    pass: 'rbyz nvgi eppd rwqm',
-  },
-});
+const hasEmailConfig =
+  config.email.host &&
+  config.email.port &&
+  config.email.user &&
+  config.email.pass &&
+  config.email.from;
+
+const transporter = hasEmailConfig
+  ? nodemailer.createTransport({
+      host: config.email.host,
+      port: config.email.port,
+      secure: config.email.secure,
+      auth: {
+        user: config.email.user,
+        pass: config.email.pass,
+      },
+    })
+  : null;
 
 export const sendEmail = async (to, subject, text, html) => {
+  if (!transporter) {
+    logger.error('Email transport is not configured. Check SMTP_* variables.');
+    throw new Error('Email service is not configured');
+  }
+
   try {
     const mailOptions = {
-      from: `"TrustSurgery" <mdrakibulhasan12346@gmail.com>`,
+      from: config.email.from,
       to,
       subject,
       text,

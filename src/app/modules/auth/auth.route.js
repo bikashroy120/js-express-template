@@ -2,6 +2,7 @@ import express from 'express';
 import validate from '../../middlewares/validate.js';
 import { authController } from './auth.controller.js';
 import {
+  changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
   refreshTokenSchema,
@@ -33,8 +34,12 @@ router.post(
   validate(resetPasswordSchema),
   authController.resetPassword,
 );
-router.post('/change-password', authController.changePassword);
 router.get('/profile', auth(), authController.getProfile);
-router.post('/change-password', auth(), authController.changePassword);
+router.post(
+  '/change-password',
+  auth(),
+  validate(changePasswordSchema),
+  authController.changePassword,
+);
 
 export const authRoute = router;
