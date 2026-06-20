@@ -89,6 +89,36 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const getProfile = catchAsync(async (req, res) => {
+  const userId = req?.user?.id;
+  const result = await authService.getProfile(userId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'User profile retrieved successfully',
+    data: result,
+  });
+});
+
+const changePassword = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+  const result = await authService.changePassword({
+    userId,
+    currentPassword,
+    newPassword,
+    confirmNewPassword,
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Password changed successfully',
+    data: result,
+  });
+});
+
 export const authController = {
   register,
   login,
@@ -97,4 +127,6 @@ export const authController = {
   resendOtp,
   verifyOtp,
   resetPassword,
+  getProfile,
+  changePassword,
 };

@@ -91,3 +91,30 @@ export const resetPasswordSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
   });
+
+export const changePasswordSchema = z
+  .object({
+    body: z.object({
+      currentPassword: z
+        .string({
+          required_error: 'Current password is required',
+          invalid_type_error: 'Current password must be a string',
+        })
+        .min(4, 'Current password must be at least 4 characters long'),
+      newPassword: z
+        .string({
+          required_error: 'New password is required',
+          invalid_type_error: 'New password must be a string',
+        })
+        .min(4, 'New password must be at least 4 characters long'),
+      confirmNewPassword: z
+        .string({
+          required_error: 'Confirm new password is required',
+          invalid_type_error: 'Confirm new password must be a string',
+        })
+        .min(4, 'Confirm new password must be at least 4 characters long'),
+    }),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'New passwords do not match',
+  });

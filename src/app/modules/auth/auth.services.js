@@ -349,6 +349,50 @@ const resetPassword = async (data) => {
   return { message: 'Password reset successfully' };
 };
 
+const getProfile = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+  delete user.password;
+  return user;
+};
+
+const changePassword = async (userId, currentPassword, newPassword) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const isPasswordValid = await comparePassword(currentPassword, user.password);
+  if (!isPasswordValid) {
+    throw new ApiError(400, 'Current password is incorrect');
+  }
+
+  const hash = await hashPassword(newPassword);
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hash,
+    },
+  });
+
+  return { message: 'Password changed successfully' };
+};
+
 export const authService = {
   register,
   login,
@@ -357,4 +401,6 @@ export const authService = {
   resendOtp,
   verifyOtp,
   resetPassword,
+  getProfile,
+  changePassword,
 };
